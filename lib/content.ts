@@ -106,3 +106,78 @@ export const footer = {
 export function legalLine(year: number): string {
   return `${footer.wordmark} // SECURE CHANNEL // ${year}`;
 }
+
+export type MeshNode = {
+  readonly id: string;
+  readonly left: string;
+  readonly top: string;
+  readonly tone: "ok" | "warn" | "cyan";
+};
+
+export type MeshLink = {
+  readonly id: string;
+  /** CSS rotation applied to a 1px rule anchored at the mesh centre. */
+  readonly angle: string;
+  readonly length: string;
+};
+
+export const hero = {
+  eyebrow: "SECURE MESH // NODE 07",
+  headline: {
+    lines: ["THE NETWORK", "AFTER THE", "NETWORK"],
+    /** Read by assistive tech in place of the gradient-clipped text. */
+    plain: "The network after the network",
+  },
+  description:
+    "NULLBEACON builds hardened communication infrastructure for systems that cannot afford to disappear. 41 relay nodes, end-to-end encrypted, zero telemetry.",
+  ctas: {
+    primary: { label: "INITIALIZE UPLINK", href: "#access" },
+    secondary: { label: "VIEW NETWORK", href: "#network" },
+  },
+  scrollCue: "SCROLL",
+  mesh: {
+    title: "NODE MESH",
+    liveLabel: "LIVE",
+    centerNode: {
+      id: "node_07",
+      label: "NODE_07",
+    },
+    readouts: [
+      { label: "NODE", value: "NODE_07" },
+      { label: "UPLINK", value: "ENCRYPTED" },
+      { label: "LATENCY", value: "8.4ms" },
+      { label: "CIPHER", value: "AES-256" },
+    ],
+    signal: { label: "SIGNAL STABLE", tone: "ok" },
+    nodes: [
+      { id: "n1", left: "50%", top: "7%", tone: "cyan" },
+      { id: "n2", left: "79%", top: "25%", tone: "cyan" },
+      { id: "n3", left: "79%", top: "75%", tone: "warn" },
+      { id: "n4", left: "50%", top: "93%", tone: "cyan" },
+      { id: "n5", left: "21%", top: "75%", tone: "ok" },
+      { id: "n6", left: "21%", top: "25%", tone: "cyan" },
+    ],
+    links: [
+      { id: "l1", angle: "-90deg", length: "43%" },
+      { id: "l2", angle: "-41deg", length: "39%" },
+      { id: "l3", angle: "41deg", length: "39%" },
+      { id: "l4", angle: "90deg", length: "43%" },
+      { id: "l5", angle: "139deg", length: "39%" },
+      { id: "l6", angle: "219deg", length: "39%" },
+    ],
+  },
+} as const satisfies {
+  eyebrow: string;
+  headline: { lines: readonly string[]; plain: string };
+  description: string;
+  ctas: Record<"primary" | "secondary", NavLink>;
+  scrollCue: string;
+  mesh: {
+    title: string;
+    liveLabel: string;
+    centerNode: { id: string; label: string };
+    readouts: readonly StatusReadout[];
+    signal: { readonly label: string; readonly tone: "ok" };    nodes: readonly MeshNode[];
+    links: readonly MeshLink[];
+  };
+};
