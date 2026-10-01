@@ -1,10 +1,6 @@
 import { cn } from "@/lib/cn";
 import { footer, legalLine } from "@/lib/content";
-
-const dotTone = {
-  ok: "bg-ok",
-  cyan: "bg-cyan",
-} as const;
+import { bgTone } from "@/lib/tone";
 
 export function SiteFooter() {
   return (
@@ -23,9 +19,11 @@ export function SiteFooter() {
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
             {footer.groups.map((group) => (
               <div key={group.id}>
-                <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-cyan">
+                {/* Column labels, not document sections. A <p> keeps them out of the page
+                    heading outline - they are navigation, not structure. */}
+                <p className="font-mono text-xs uppercase tracking-[0.2em] text-cyan">
                   {group.heading}
-                </h2>
+                </p>
                 <ul className="mt-4 space-y-1">
                   {group.links.map((link) => (
                     <li key={link.label}>
@@ -54,7 +52,7 @@ export function SiteFooter() {
                 aria-hidden="true"
                 className={cn(
                   "inline-block h-1.5 w-1.5 rounded-full",
-                  dotTone[readout.tone],
+                  bgTone[readout.tone],
                 )}
               />
               <dt className="font-mono text-xs uppercase tracking-[0.15em] text-muted">

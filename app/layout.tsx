@@ -1,12 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Chakra_Petch, Geist, Geist_Mono } from "next/font/google";
+import { Chakra_Petch, Geist_Mono } from "next/font/google";
+import { nav } from "@/lib/content";
 import { VOID } from "@/lib/theme";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -40,14 +36,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${chakraPetch.variable} h-full antialiased`}
+      className={`${geistMono.variable} ${chakraPetch.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <a
           href="#content"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:border focus:border-cyan/60 focus:bg-surface focus:px-4 focus:py-3 focus:font-mono focus:text-sm focus:text-cyan"
         >
-          Skip to content
+          {nav.skipLabel}
         </a>
         {children}
       </body>

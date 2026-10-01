@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NULLBEACON
 
-## Getting Started
+Single-page cyberpunk product site. Next.js 16 App Router, React 19, Tailwind v4
+(CSS-first). Every visual is CSS - there are no image assets and no runtime
+dependencies beyond `next`, `react`, `react-dom`.
 
-First, run the development server:
+All product copy is fictional.
+
+## Commands
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev      # dev server
+npm run lint     # eslint (core-web-vitals + typescript)
+npx tsc --noEmit # typecheck
+npm run build    # authoritative for CSS output and client/server boundaries
+npm run start    # serve the production build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Layout
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `app/globals.css` - the only place design tokens are declared (`@theme`). There is
+  no `tailwind.config.js` and there must never be one.
+- `lib/theme.ts` - typed mirror of the tokens, for inline `style` and SVG values
+  where a Tailwind class cannot reach.
+- `lib/tone.ts` - semantic tone -> class maps (`textTone`, `bgTone`). The single
+  source for what colour an `ok` / `warn` / `cyan` signal wears.
+- `lib/content.ts` - all user-visible copy, as typed constants.
+- `lib/mesh.ts` - hero mesh geometry. Layout data, deliberately not in `content.ts`.
+- `components/ui/` - the primitives: `hud-panel`, `neon-button`, `section-heading`,
+  `status-readout`.
+- `components/sections/` - `hero`, `status-panel`, `features`, `terminal`.
+- `components/layout/` - `site-nav`, `site-footer`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`app/page.tsx` is composition only: it imports sections and places them.
 
-## Learn More
+## Client components
 
-To learn more about Next.js, take a look at the following resources:
+Exactly two islands carry `"use client"`, each for a stated reason:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. `components/layout/site-nav.tsx` - mobile drawer disclosure state.
+2. `components/sections/terminal.tsx` - line-by-line reveal, with a static final
+   state under `prefers-reduced-motion`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Everything else is a Server Component with pure-CSS or static rendering.
 
-## Deploy on Vercel
+## Design system
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The visual contract lives in `.opencode/skills/`, not in this file:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `cyberpunk-design-system` - palette, type, glow hierarchy, motion budget.
+- `neon-tokens-tailwind4` - how tokens are registered in `@theme`.
+- `hud-ui-patterns` - component recipes.
+- `page-composition-checklist` - the verification gate. Read it before calling any
+  work done.

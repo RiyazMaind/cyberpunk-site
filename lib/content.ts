@@ -25,6 +25,8 @@ export type StatusReadout = {
 export const nav = {
   wordmark: "NULLBEACON",
   wordmarkHref: "#content",
+  /** First focusable element on the page. */
+  skipLabel: "Skip to content",
   status: {
     label: "ONLINE",
     tone: "ok",
@@ -44,6 +46,7 @@ export const nav = {
 } as const satisfies {
   wordmark: string;
   wordmarkHref: `#${string}`;
+  skipLabel: string;
   status: { label: string; tone: "ok" | "warn" | "alert" };
   links: readonly NavLink[];
   drawer: {
@@ -66,7 +69,7 @@ export const footer = {
       links: [
         { label: "Overview", href: "#system" },
         { label: "Nodes", href: "#network" },
-        { label: "Status", href: "#protocol" },
+        { label: "Telemetry", href: "#network" },
       ],
     },
     {
@@ -107,20 +110,6 @@ export function legalLine(year: number): string {
   return `${footer.wordmark} // SECURE CHANNEL // ${year}`;
 }
 
-export type MeshNode = {
-  readonly id: string;
-  readonly left: string;
-  readonly top: string;
-  readonly tone: "ok" | "warn" | "cyan";
-};
-
-export type MeshLink = {
-  readonly id: string;
-  /** CSS rotation applied to a 1px rule anchored at the mesh centre. */
-  readonly angle: string;
-  readonly length: string;
-};
-
 export const hero = {
   eyebrow: "SECURE MESH // NODE 07",
   headline: {
@@ -138,10 +127,6 @@ export const hero = {
   mesh: {
     title: "NODE MESH",
     liveLabel: "LIVE",
-    centerNode: {
-      id: "node_07",
-      label: "NODE_07",
-    },
     readouts: [
       { label: "NODE", value: "NODE_07" },
       { label: "UPLINK", value: "ENCRYPTED" },
@@ -149,22 +134,6 @@ export const hero = {
       { label: "CIPHER", value: "AES-256" },
     ],
     signal: { label: "SIGNAL STABLE", tone: "ok" },
-    nodes: [
-      { id: "n1", left: "50%", top: "7%", tone: "cyan" },
-      { id: "n2", left: "79%", top: "25%", tone: "cyan" },
-      { id: "n3", left: "79%", top: "75%", tone: "warn" },
-      { id: "n4", left: "50%", top: "93%", tone: "cyan" },
-      { id: "n5", left: "21%", top: "75%", tone: "ok" },
-      { id: "n6", left: "21%", top: "25%", tone: "cyan" },
-    ],
-    links: [
-      { id: "l1", angle: "-90deg", length: "43%" },
-      { id: "l2", angle: "-41deg", length: "39%" },
-      { id: "l3", angle: "41deg", length: "39%" },
-      { id: "l4", angle: "90deg", length: "43%" },
-      { id: "l5", angle: "139deg", length: "39%" },
-      { id: "l6", angle: "219deg", length: "39%" },
-    ],
   },
 } as const satisfies {
   eyebrow: string;
@@ -175,9 +144,183 @@ export const hero = {
   mesh: {
     title: string;
     liveLabel: string;
-    centerNode: { id: string; label: string };
     readouts: readonly StatusReadout[];
-    signal: { readonly label: string; readonly tone: "ok" };    nodes: readonly MeshNode[];
-    links: readonly MeshLink[];
+    signal: { readonly label: string; readonly tone: "ok" };
   };
+};
+
+/**
+ * Section 6 - System Status HUD. The mesh is fictional and healthy: every
+ * metric is inside its budget. `percent` is the bar fill, which is not always
+ * the value itself - `caption` spells that out when the two differ.
+ */
+export type StatusMetric = {
+  readonly label: string;
+  readonly value: string;
+  readonly tone: "cyan" | "purple" | "ok";
+  readonly percent?: number;
+  readonly caption?: string;
+};
+
+export const status = {
+  eyebrow: "MESH UPLINK // LIVE",
+  title: "NETWORK STATUS",
+  description:
+    "Relay telemetry sampled across the NULLBEACON mesh. Every metric is signed at the node before it reaches this panel, and any budget breach pages the on-call operator.",
+  panel: {
+    /** Panel label. Deliberately not "NETWORK STATUS" - that is the section
+        heading, and repeating it announced the same phrase twice. */
+    title: "MESH TELEMETRY",
+    state: { label: "NOMINAL", tone: "ok" },
+    timestamp: "SYNC 03:14:22 UTC",
+  },
+  metrics: [
+    {
+      label: "UPTIME",
+      value: "99.998%",
+      tone: "ok",
+      percent: 99.998,
+    },
+    {
+      label: "LATENCY",
+      value: "8.4ms",
+      tone: "ok",
+      percent: 42,
+      caption: "42% of the 20ms relay budget",
+    },
+    {
+      label: "ACTIVE NODES",
+      value: "41 / 41",
+      tone: "cyan",
+      percent: 100,
+      caption: "Full mesh enrolled and responding",
+    },
+    {
+      label: "THROUGHPUT",
+      value: "8.7 TB/s",
+      tone: "purple",
+      percent: 87,
+      caption: "87% of the 10 TB/s rated ceiling",
+    },
+    {
+      label: "INTEGRITY",
+      value: "100%",
+      tone: "ok",
+      percent: 100,
+    },
+  ],
+} as const satisfies {
+  eyebrow: string;
+  title: string;
+  description: string;
+  panel: {
+    title: string;
+    state: { readonly label: string; readonly tone: "ok" };
+    timestamp: string;
+  };
+  metrics: readonly StatusMetric[];
+};
+
+/**
+ * Section 7 - Feature cards. `identifier` is the top-of-card technical label,
+ * `state` the bottom-of-card status strip. `tone` picks the HudPanel accent.
+ */
+export type Feature = {
+  readonly identifier: string;
+  readonly title: string;
+  readonly description: string;
+  readonly state: { readonly label: string; readonly tone: "ok" | "cyan" | "purple" };
+  readonly tone?: "cyan" | "purple";
+};
+
+export const features = {
+  eyebrow: "PROTOCOLS // CORE",
+  title: "CAPABILITIES",
+  description:
+    "Three subsystems run underneath every NULLBEACON uplink. They are listed here in the order a packet meets them.",
+  items: [
+    {
+      identifier: "PROTO_01",
+      title: "ENCRYPTED MESH",
+      description:
+        "Every node participates in a hardened mesh. Traffic stays encrypted across the entire relay path, so no single hop can read, rewrite, or silently terminate a session.",
+      state: { label: "ACTIVE", tone: "ok" },
+      tone: "cyan",
+    },
+    {
+      identifier: "PROTO_02",
+      title: "ZERO-TRACE RELAY",
+      description:
+        "Relay infrastructure minimises retained metadata and never writes plaintext payloads to disk. Addresses rotate per session and are discarded when the last packet lands.",
+      state: { label: "SECURE", tone: "cyan" },
+      tone: "purple",
+    },
+    {
+      identifier: "PROTO_03",
+      title: "AUTONOMOUS ROUTING",
+      description:
+        "Traffic resolves the healthiest available route across the active mesh. Degraded nodes are removed from the path within two heartbeats, without operator input.",
+      state: { label: "AUTONOMOUS", tone: "purple" },
+      tone: "cyan",
+    },
+  ],
+} as const satisfies {
+  eyebrow: string;
+  title: string;
+  description: string;
+  items: readonly Feature[];
+};
+
+/**
+ * Section 8 - Terminal / access. The console is fictional; `lines` is a fixed
+ * transcript revealed one line at a time. No line is generated at runtime.
+ */
+export type TerminalLine = {
+  readonly kind: "command" | "output" | "result";
+  readonly text: string;
+  /** Leading status marker, e.g. "[ OK ]". Only used by `result` lines. */
+  readonly marker?: string;
+  readonly tone?: "ok" | "cyan" | "purple";
+};
+
+export const terminal = {
+  eyebrow: "ACCESS // SECURE CONSOLE",
+  title: "OPEN A CHANNEL",
+  description:
+    "Operator sessions are negotiated per client and closed when the last packet is acknowledged. Nothing below is a live system: NULLBEACON is fictional and no traffic leaves this page.",
+  window: {
+    path: "operator@nullbeacon:~/uplink",
+    /** Window-chrome dots. Decorative, and deliberately not traffic lights. */
+    dots: ["ok", "cyan", "purple"] as const,
+    prompt: "> ",
+  },
+  lines: [
+    { kind: "command", text: "nullbeacon --status", tone: "cyan" },
+    { kind: "output", text: "establishing encrypted uplink..." },
+    { kind: "output", text: "negotiating ephemeral session keys" },
+    { kind: "result", marker: "[ OK ]", text: "handshake complete", tone: "ok" },
+    { kind: "result", marker: "[ OK ]", text: "mesh integrity verified", tone: "ok" },
+    { kind: "result", marker: "[ OK ]", text: "active nodes 41/41", tone: "ok" },
+    { kind: "result", marker: "[ OK ]", text: "relay latency 8.4ms", tone: "ok" },
+    { kind: "result", marker: "[ OK ]", text: "cipher AES-256", tone: "ok" },
+    { kind: "result", marker: "[ OK ]", text: "route matrix synchronized", tone: "ok" },
+    { kind: "result", marker: "[ OK ]", text: "uplink operational", tone: "ok" },
+    { kind: "output", text: "session ready - awaiting operator", tone: "cyan" },
+  ] as const satisfies readonly TerminalLine[],
+  cta: {
+    label: "OPEN SECURE CHANNEL",
+    /** Explains why the CTA is not yet a link. */
+    note: "Console provisioning is pending. This system is fictional.",
+  },
+} as const satisfies {
+  eyebrow: string;
+  title: string;
+  description: string;
+  window: {
+    path: string;
+    dots: readonly ("ok" | "cyan" | "purple")[];
+    prompt: string;
+  };
+  lines: readonly TerminalLine[];
+  cta: { label: string; note: string };
 };

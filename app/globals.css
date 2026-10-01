@@ -36,10 +36,10 @@
 /*
  * Values that reference CSS variables owned by app/layout.tsx are declared
  * inline so the utilities emit the value instead of a var() indirection.
+ * There is no --font-sans: nothing uses the default sans stack. Display is
+ * Chakra Petch, technical text is Geist Mono, body is --font-mono.
  */
 @theme inline {
-  --color-background: var(--color-void);
-  --font-sans: var(--font-geist-sans);
   --font-display: var(--font-chakra-petch), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
@@ -117,36 +117,8 @@
     background-size: 48px 48px;
   }
 
-  /* Clipped HUD corner brackets. Pair with a real border - the brackets are a
-     detail, not the edge. */
-  .hud-corners::before,
-  .hud-corners::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-repeat: no-repeat;
-    background-size:
-      12px 12px,
-      12px 12px,
-      12px 12px,
-      12px 12px;
-    background-image:
-      linear-gradient(to right, var(--color-cyan) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--color-cyan) 1px, transparent 1px),
-      linear-gradient(to left, var(--color-cyan) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--color-cyan) 1px, transparent 1px);
-    background-position: left top, left top, right top, right top;
-  }
-
-  .hud-corners::after {
-    background-image:
-      linear-gradient(to right, var(--color-cyan) 1px, transparent 1px),
-      linear-gradient(to top, var(--color-cyan) 1px, transparent 1px),
-      linear-gradient(to left, var(--color-cyan) 1px, transparent 1px),
-      linear-gradient(to top, var(--color-cyan) 1px, transparent 1px);
-    background-position: left bottom, left bottom, right bottom, right bottom;
-  }
+  /* Clipped HUD corner brackets are drawn by explicit spans in HudPanel, not by
+     a utility - .hud-corners was removed as dead code. */
 
   @media (max-width: 767px) {
     .bg-grid {
@@ -155,6 +127,11 @@
   }
 }
 
+/*
+ * Headline glow only. This is the page's single "primary" glow tier - applying it
+ * anywhere else flattens the hierarchy and makes the whole document read as lit.
+ * Registered values are the source of truth in cyberpunk-design-system.
+ */
 @utility text-glow-cyan {
   text-shadow:
     0 0 18px rgb(34 211 238 / 0.55),

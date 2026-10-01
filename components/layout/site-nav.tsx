@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { nav, navPrimaryLabel } from "@/lib/content";
+import { bgTone, textTone } from "@/lib/tone";
 
 export function SiteNav() {
   const [open, setOpen] = useState(false);
@@ -36,10 +37,18 @@ export function SiteNav() {
           >
             {nav.wordmark}
           </a>
-          <span className="hidden items-center gap-2 font-mono text-xs uppercase tracking-[0.15em] text-ok sm:flex">
+          <span
+            className={cn(
+              "hidden items-center gap-2 font-mono text-xs uppercase tracking-[0.15em] sm:flex",
+              textTone[nav.status.tone],
+            )}
+          >
             <span
               aria-hidden="true"
-              className="inline-block h-1.5 w-1.5 rounded-full bg-ok animate-pulse-dot"
+              className={cn(
+                "inline-block h-1.5 w-1.5 rounded-full animate-pulse-dot",
+                bgTone[nav.status.tone],
+              )}
             />
             {nav.status.label}
           </span>

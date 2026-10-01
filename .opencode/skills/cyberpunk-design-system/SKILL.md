@@ -130,20 +130,38 @@ contract. See `neon-tokens-tailwind4` for the mechanics.
 ```
 
 `--color-foreground` replaces the boilerplate `--foreground` and is used as
-`text-foreground` throughout. The existing `@theme inline` block also maps
-`--color-background`, `--font-sans`, and `--font-mono`; **keep `--font-mono` aligned
-with the value above** and leave the block's other entries intact. The scaffold's
-`@media (prefers-color-scheme: dark)` override is **removed** - this site is dark only,
-and leaving it lets the OS setting fight the theme.
+`text-foreground` throughout.
 
-Two named custom utilities are also required, defined in a plain `@layer utilities`
-block per `neon-tokens-tailwind4`:
+**Fonts live in `@theme inline`, not `@theme`.** The `--font-display` and
+`--font-mono` values reference CSS variables owned by `app/layout.tsx`, so they must
+be declared inline or the utilities emit a `var()` indirection instead of the value.
+There is deliberately **no `--font-sans`**: nothing uses the default sans stack.
+Display is Chakra Petch, technical text is Geist Mono, body is `--font-mono`. Do not
+add a sans token.
+
+The scaffold's `@media (prefers-color-scheme: dark)` override is **removed** - this
+site is dark only, and leaving it lets the OS setting fight the theme.
+
+Two named custom utilities are required:
 
 - `.bg-grid` - the static grid backdrop (48px cells, cyan at ~4.5%, edge-faded).
+  Lives in a plain `@layer utilities` block because it needs a nested media query
+  for the 32px mobile cell size, which `@utility` bodies do not support.
 - `.text-glow-cyan` - `text-shadow: 0 0 18px rgb(34 211 238 / 0.55), 0 0 42px rgb(168 85 247 / 0.35)`.
+  Declared with `@utility`. It is the **page's only primary-tier glow** and belongs on
+  the hero headline alone.
 
 Their matching `@keyframes` (`blink`, `pulse-dot`) go at the top level of
 `globals.css`. Nothing else should be invented.
+
+### Semantic tone maps
+
+Colour-by-meaning lives in `lib/tone.ts`, not in component files. `textTone` and
+`bgTone` map `cyan | purple | magenta | muted | ok | warn | alert | foreground` to
+their classes, and `Tone` is the shared type. Components index those maps with a
+tone from `lib/content.ts` instead of declaring their own `dotTone` / `barTone` /
+`markerTone` tables. Five near-identical local tables existed before this rule; they
+drifted, and one of them carried a cyan/purple pairing the palette never sanctioned.
 
 ## Borders and glow
 
@@ -161,6 +179,9 @@ Their matching `@keyframes` (`blink`, `pulse-dot`) go at the top level of
   real `border`.
 - At most **one** element per section carries a strong glow. If everything glows,
   nothing does.
+- **Interior rules follow the panel tone.** A divider inside a purple panel is
+  `border-purple/15`, not `border-cyan/15`. The tone owns the whole object, frame and
+  interior alike - see "Semantic tone maps" above.
 
 ## Grid background
 
@@ -203,15 +224,19 @@ Hard limits:
 
 ## Server vs client components
 
-Server Components by default. The site ships **only three** client islands:
+Server Components by default. The site ships **exactly two** client islands:
 
-1. `components/layout/site-nav.tsx` - mobile drawer needs state
-2. `components/sections/terminal.tsx` - typing loop needs state
-3. `components/motion/reveal.tsx` - IntersectionObserver
+1. `components/layout/site-nav.tsx` - mobile drawer disclosure state
+2. `components/sections/terminal.tsx` - line-by-line reveal state
 
-Everything else stays a Server Component with pure-CSS animation. Adding a fourth
-`"use client"` boundary needs a stated reason. Do not mark a whole section client-side
-because one child needs interactivity - pass the interactive leaf through as a child.
+There is no `components/motion/reveal.tsx`. Scroll reveals were cut; sections use
+static rendering and CSS transitions only. Adding a third `"use client"` boundary needs
+a stated reason. Do not mark a whole section client-side because one child needs
+interactivity - pass the interactive leaf through as a child.
+
+**Layout geometry never goes in a Server Component that renders without state, and
+never in `lib/content.ts`.** Hero mesh node positions and link angles live in
+`lib/mesh.ts`.
 
 ## Copy
 
